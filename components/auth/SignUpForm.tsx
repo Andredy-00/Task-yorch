@@ -19,9 +19,7 @@ import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { AuthFormProps } from "./AuthForm";
-
-
-
+import { signup } from "@/actions/auth/auth";
 
 const SignUpForm = ({ setTypeSelected }: AuthFormProps) => {
 
@@ -60,7 +58,17 @@ const SignUpForm = ({ setTypeSelected }: AuthFormProps) => {
         setisLoading(true);
 
         try {
-            console.log(user);
+            const res = await signup(user);
+
+            if (res.success) {
+                toast.success(`Hola, ${user.name}. Te hemos enviado un correo para poder verificar tu cuenta.`, {
+                    duration: 4000,
+                    icon: '📧'
+                });
+
+                setTypeSelected('sign-in');
+                form.reset();
+            }
 
         } catch (error: any) {
             // Manejar errores específicos de Supabase
