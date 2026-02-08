@@ -72,3 +72,25 @@ export async function sendRecoveryEmail(formData: {
     data
   }
 }
+
+export async function updatePassword(formData: {
+    password: string
+}) {
+  const supabase = await createClient()
+
+  const { error, data } = await supabase.auth.updateUser({
+    password: formData.password
+  })
+
+  if (error) {
+    return {
+        success: false,
+        error: error.message
+    }
+  }
+  return {
+    success: true,
+    message: 'Contraseña actualizada exitosamente',
+    data
+  }
+}
