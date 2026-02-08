@@ -52,3 +52,23 @@ export async function signup(formData: {
     data
   }
 }
+
+export async function sendRecoveryEmail(formData: {
+    email: string,
+}) {
+  const supabase = await createClient()
+
+  const { error, data } = await supabase.auth.resetPasswordForEmail(formData.email)
+
+  if (error) {
+    return {
+        success: false,
+        error: error.message
+    }
+  }
+  return {
+    success: true,
+    message: 'Correo de recuperación enviado exitosamente. Revisa tu bandeja de entrada.',
+    data
+  }
+}
