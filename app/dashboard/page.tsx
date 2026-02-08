@@ -1,13 +1,24 @@
+import { AvatarBadge } from "@/components/AvatarBadge";
+import { LayoutGrid } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
     return (
-        <div>Dashboard page
+        <>
+            <nav className="flex justify-between items-center px-6 py-4">
+                <div className="text-xl font-extrabold tracking-tight flex items-center gap-3">
+                    <LayoutGrid size={32} />
+                    Gestor de Tareas
+                </div>
 
-            <form action="/api/auth/signout" method="post">
-                <button className="button block" type="submit">
-                    Sign out
-                </button>
-            </form>
-        </div>
+                <Link
+                    href="/profile"
+                >
+                    <AvatarBadge name="Jorge Guerra" />
+
+                </Link>
+
+            </nav>
+        </>
     )
 }
