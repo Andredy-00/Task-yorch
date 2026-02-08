@@ -1,7 +1,10 @@
+import AuthForm from "@/components/auth/AuthForm";
 
 
 export default function Home() {
   return (
-    <h1>Hola</h1>
+    <div className="">
+      <AuthForm type="sign-up" />
+    </div>
   );
 }
