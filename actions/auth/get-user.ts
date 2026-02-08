@@ -14,14 +14,14 @@ export const getUser = async () => {
     .eq('id', session.id)
     .single();
 
-    if(userData){
-        console.log("Error featching user: ", userError);
+    if(userError){
+        console.log("Error dentro featching user: ", userError);
         return null
     }
 
     return userData;
     } catch (error) {
-        console.log("Error featching user: ", error);
+        console.log("Error fuera featching user: ", error);
         return null;
     }
 

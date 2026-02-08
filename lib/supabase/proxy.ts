@@ -38,7 +38,7 @@ export async function updateSession(request: NextRequest) {
   ];
 
   // Si no hay usuario autenticado y esta intentando acceder a una ruta protegida, redirigir al login
-  if(user && protectedRoutes.includes(request.nextUrl.pathname)){
+  if(!user && protectedRoutes.includes(request.nextUrl.pathname)){
     return NextResponse.redirect(new URL('/', request.url));
   }
 
