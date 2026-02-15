@@ -26,6 +26,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import AccountForm from './AccountForm';
+import { getImageUrl } from '@/lib/utils';
 
 // Función para obtener las iniciales del nombre
 export const getInitials = (name: string | null) => {
@@ -137,7 +138,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
                             <Avatar className="h-24 w-24 border-4 border-background shadow-lg">
                                 {profile.avatar_url ? (
                                     <Image
-                                        src={profile.avatar_url}
+                                        src={getImageUrl(profile.avatar_url)}
                                         alt={profile.name || 'Usuario'}
                                         className="object-cover"
                                         width={1000}

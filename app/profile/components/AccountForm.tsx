@@ -20,6 +20,9 @@ import {
 import { Input } from "@/components/ui/input"
 import Image from 'next/image'
 import PhoneInput from '@/components/PhoneInput'
+import { updateAvatar } from '@/actions/auth/update-avatar'
+import { getImageUrl } from '@/lib/utils'
+import { updateProfile } from '@/actions/auth/update.profile'
 
 
 const profileSchema = z.object({
@@ -74,7 +77,14 @@ export default function AccountForm({
         try {
             setLoading(true)
 
-            console.log(values);
+            const res = await updateProfile({
+                id: user.id,
+                name: values.name,
+                phone: values.phone,
+                country_code: values.country_code,
+            });
+
+            toast.success('Perfil actualizado con exito.');
 
             if (onSuccess) onSuccess()
         } catch (error) {
@@ -107,7 +117,16 @@ export default function AccountForm({
 
         try {
 
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', user.id);
 
+            const res = await updateAvatar(formData);
+
+            if (res.publicUrl) {
+                setAvatarUrl(res.publicUrl);
+                toast.success('Avatar actualizado correctamente');
+            }
 
         } catch (error: any) {
             console.error('Error al actualizar avatar:', error)
@@ -136,7 +155,7 @@ export default function AccountForm({
 
                             <Image
                                 className="object-cover w-full h-full rounded-full"
-                                src={avatarUrl}
+                                src={getImageUrl(avatarUrl)}
                                 width={1000}
                                 height={1000}
                                 alt="user-img"
