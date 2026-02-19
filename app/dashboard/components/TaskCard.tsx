@@ -1,4 +1,4 @@
-
+import { Task } from '@/interfaces/task';
 import { Card, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,17 +13,18 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useState } from 'react';
-
-interface Task {
-    id: string;
-    title: string;
-    description: string;
-    status: 'todo' | 'in-progress' | 'review' | 'done';
-    priority: 'low' | 'medium' | 'high';
-    created_at: number;
-    image: string | null;
-}
 
 interface TaskCardProps {
     task: Task;
@@ -96,14 +97,14 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
                             {task.title}
                         </CardTitle>
                         <p className="text-[11px] md:text-xs text-muted-foreground line-clamp-2 md:line-clamp-3 leading-relaxed">
-                            {task.description.slice(0, 70) + '...' || 'Sin descripción detallada.'}
+                            {(task.description || '').slice(0, 70) + (task.description && task.description.length > 70 ? '...' : '') || 'Sin descripción detallada.'}
                         </p>
                     </CardHeader>
 
                     <CardFooter className="p-3 md:p-4 pt-2 md:pt-0 border-t border-border/10 mt-auto flex items-center justify-between gap-2">
                         <div className="flex items-center text-[10px] text-muted-foreground font-medium truncate">
                             <Calendar size={12} className="mr-1 opacity-70 shrink-0" />
-                            {format(task.created_at, 'd MMM', { locale: es })}
+                            {format(new Date(task.created_at), 'd MMM', { locale: es })}
                         </div>
 
                         <div className="flex items-center gap-0.5 md:gap-1 shadow-xs">
@@ -123,14 +124,35 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
                             >
                                 <Edit size={14} />
                             </Button>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 md:h-7 md:w-7 rounded-full hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                                onClick={() => onDelete(task)}
-                            >
-                                <Trash2 size={14} />
-                            </Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 md:h-7 md:w-7 rounded-full hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                                    >
+                                        <Trash2 size={14} />
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Esta acción no se puede deshacer. Esto eliminará permanentemente la tarea
+                                            <span className="font-semibold text-foreground"> "{task.title}"</span>.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => onDelete(task)}
+                                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                        >
+                                            Eliminar
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
                     </CardFooter>
                 </div>
@@ -166,7 +188,7 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
                             </div>
                             <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 pt-4 border-t border-border/50">
                                 <Calendar size={12} />
-                                <span className="uppercase font-medium tracking-tight">Creado el {format(task.created_at, "d 'de' MMMM, yyyy", { locale: es })}</span>
+                                <span className="uppercase font-medium tracking-tight">Creado el {format(new Date(task.created_at), "d 'de' MMMM, yyyy", { locale: es })}</span>
                             </div>
                         </div>
 

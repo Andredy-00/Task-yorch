@@ -16,22 +16,15 @@ import {
 } from "@/components/ui/form";
 
 import { Loader2 } from 'lucide-react';
-import * as z from "zod";
+import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileInput } from '@/components/FileInput';
-
-export type Status = 'todo' | 'in-progress' | 'review' | 'done';
-
-export interface Task {
-    id: string;
-    title: string;
-    description: string;
-    status: Status;
-    priority: 'low' | 'medium' | 'high';
-    created_at: number;
-    image: string | null;
-}
+import { Task, TaskStatus, TaskPriority } from '@/interfaces/task';
+import { createTask } from '@/actions/tasks/create-task';
+import { updateTask } from '@/actions/tasks/update-task';
+import { uploadTaskImage } from '@/actions/tasks/upload-image';
+import { toast } from 'sonner';
 
 interface TaskFormProps {
     isOpen: boolean;
@@ -55,7 +48,7 @@ export function TaskForm({ isOpen, onClose, task, onSuccess }: TaskFormProps) {
     const [removeImage, setRemoveImage] = useState(false);
 
     const form = useForm<TaskFormValues>({
-        resolver: zodResolver(taskSchema),
+        resolver: zodResolver(taskSchema) as any,
         defaultValues: {
             title: '',
             description: '',
@@ -90,28 +83,37 @@ export function TaskForm({ isOpen, onClose, task, onSuccess }: TaskFormProps) {
         setLoading(true);
 
         try {
-            const formData = new FormData();
-            formData.append('title', data.title);
-            formData.append('description', data.description || '');
-            formData.append('status', data.status);
-            formData.append('priority', data.priority);
+            let imageUrl = task?.image || null;
 
             if (selectedFile) {
-                formData.append('image', selectedFile);
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                imageUrl = await uploadTaskImage(formData);
+            } else if (removeImage) {
+                imageUrl = null;
             }
 
+            const taskData: Partial<Task> = {
+                title: data.title,
+                description: data.description || null,
+                status: data.status as TaskStatus,
+                priority: data.priority as TaskPriority,
+                image: imageUrl
+            };
+
             if (task) {
-                formData.append('existingImage', task.image || '');
-                if (removeImage) formData.append('removeImage', 'true');
-
+                await updateTask(task.id, taskData);
+                toast.success('Tarea actualizada correctamente');
             } else {
-
+                await createTask(taskData);
+                toast.success('Tarea creada correctamente');
             }
 
             onSuccess();
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error saving task:', error);
+            toast.error('Error al guardar la tarea: ' + error.message);
         } finally {
             setLoading(false);
         }
