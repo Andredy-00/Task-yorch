@@ -14,6 +14,17 @@ export async function deleteTask(id: string) {
     throw new Error("Unauthorized");
   }
 
+  // Get current task to check for image before deletion
+  const { data: currentTask, error: fetchError } = await supabase
+    .from("tasks")
+    .select("image")
+    .eq("id", id)
+    .single();
+
+  if (fetchError) {
+    console.error("Error fetching task for cleanup:", fetchError);
+  }
+
   const { error } = await supabase
     .from("tasks")
     .delete()
@@ -23,6 +34,12 @@ export async function deleteTask(id: string) {
   if (error) {
     console.error("Error deleting task:", error);
     throw new Error(error.message);
+  }
+
+  // Cleanup image if it exists
+  if (currentTask?.image) {
+    const { deleteImageFromStorage } = await import("./delete-image");
+    await deleteImageFromStorage(currentTask.image);
   }
 
   revalidatePath("/dashboard");

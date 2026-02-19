@@ -15,6 +15,17 @@ export async function updateTask(id: string, updates: Partial<Task>) {
     throw new Error("Unauthorized");
   }
 
+  // Get current task to check for old image
+  const { data: currentTask, error: fetchError } = await supabase
+    .from("tasks")
+    .select("image")
+    .eq("id", id)
+    .single();
+
+  if (fetchError) {
+    console.error("Error fetching task for cleanup:", fetchError);
+  }
+
   const { data, error } = await supabase
     .from("tasks")
     .update({
@@ -29,6 +40,12 @@ export async function updateTask(id: string, updates: Partial<Task>) {
   if (error) {
     console.error("Error updating task:", error);
     throw new Error(error.message);
+  }
+
+  // Cleanup old image if it was changed/removed
+  if (currentTask?.image && currentTask.image !== updates.image) {
+    const { deleteImageFromStorage } = await import("./delete-image");
+    await deleteImageFromStorage(currentTask.image);
   }
 
   revalidatePath("/dashboard");
